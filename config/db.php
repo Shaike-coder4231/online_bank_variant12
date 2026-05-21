@@ -1,9 +1,9 @@
 <?php
 // НАСТРОЙКИ БД — ЗАМЕНИТЕ НА СВОИ!
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'online_banking_variant12');
-define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_NAME', 'beauty_salon_variant5');  // ← Ваша БД
+define('DB_USER', 'root');                    // ← Ваш пользователь
+define('DB_PASS', '');                        // ← Ваш пароль
 define('DB_CHARSET', 'utf8mb4');
 
 function getPDO(): PDO {
@@ -19,3 +19,10 @@ function getPDO(): PDO {
     }
     return $pdo;
 }
+
+// Рабочие часы салона (константы)
+define('WORK_START', '09:00');
+define('WORK_END', '20:00');
+define('LUNCH_START', '14:00');
+define('LUNCH_END', '15:00');
+define('SLOT_STEP', 30); // минут

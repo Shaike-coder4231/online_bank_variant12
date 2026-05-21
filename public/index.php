@@ -1,29 +1,34 @@
 <?php
 session_start();
-$entity = $_GET['entity'] ?? 'client';
-$action = $_GET['action'] ?? 'list';
+$page = $_GET['page'] ?? 'bookings/create';
+$action = $_GET['action'] ?? 'index';
 $id = $_GET['id'] ?? null;
 
-$controllerFile = __DIR__ . "/controllers/" . ucfirst($entity) . "Controller.php";
-if (file_exists($controllerFile)) {
-    require_once $controllerFile;
-    $className = ucfirst($entity) . "Controller";
-    $controller = new $className();
+// Простая маршрутизация
+$routes = [
+    'bookings/create' => ['controller' => 'BookingController', 'method' => 'createAction'],
+    'bookings/list' => ['controller' => 'BookingController', 'method' => 'listAction'],
+    'bookings/view' => ['controller' => 'BookingController', 'method' => 'viewAction'],
+    'bookings/reschedule' => ['controller' => 'BookingController', 'method' => 'rescheduleAction'],
+    'bookings/cancel' => ['controller' => 'BookingController', 'method' => 'cancelAction'],
+    'bookings/update_status' => ['controller' => 'BookingController', 'method' => 'updateStatusAction'],
+    'reports' => ['controller' => 'ReportController', 'method' => 'indexAction'],
+    'reports/export' => ['controller' => 'ReportController', 'method' => 'exportAction'],
+];
 
-    switch ($action) {
-        case 'list':
-            $page = max(1, (int)($_GET['page'] ?? 1));
-            $sort = $_GET['sort'] ?? 'id';
-            $order = strtoupper($_GET['order'] ?? 'ASC') === 'DESC' ? 'DESC' : 'ASC';
-            $search = trim($_GET['search'] ?? '');
-            $controller->listAction($page, $sort, $order, $search);
-            break;
-        case 'create': $controller->createAction(); break;
-        case 'edit': $controller->editAction((int)$id); break;
-        case 'delete': $controller->deleteAction((int)$id); break;
-        case 'view': $controller->viewAction((int)$id); break;
-        default: http_response_code(404); echo "Действие не найдено";
+if (isset($routes[$page])) {
+    require_once __DIR__ . "/controllers/" . $routes[$page]['controller'] . ".php";
+    $controller = new $routes[$page]['controller']();
+    $method = $routes[$page]['method'];
+    
+    if ($id !== null) {
+        $controller->$method((int)$id);
+    } elseif ($action !== 'index') {
+        $controller->$method($_GET);
+    } else {
+        $controller->$method();
     }
 } else {
-    echo "Контроллер не найден. Проверьте параметр entity.";
+    http_response_code(404);
+    echo "Страница не найдена. <a href='index.php?page=bookings/create'>На главную</a>";
 }
